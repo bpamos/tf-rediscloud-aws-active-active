@@ -124,10 +124,10 @@ module "rc-aa-subscription" {
     rc_cp_read_operations_per_second_1    = var.rc_cp_read_operations_per_second_1
     rc_cp_write_operations_per_second_2   = var.rc_cp_write_operations_per_second_2
     rc_cp_read_operations_per_second_2    = var.rc_cp_read_operations_per_second_2
-    ######### DB Vars (this will deploy the db)
-    rc_db_data_persistence                = var.rc_db_data_persistence
-    rc_db_memory_limit_in_gb              = var.rc_db_memory_limit_in_gb
-    rc_db_name                            = var.rc_db_name
+    # ######### DB Vars (this will deploy the db)
+    # rc_db_data_persistence                = var.rc_db_data_persistence
+    # rc_db_memory_limit_in_gb              = var.rc_db_memory_limit_in_gb
+    # rc_db_name                            = var.rc_db_name
 
     depends_on = [
       data.rediscloud_cloud_account.account
@@ -140,23 +140,29 @@ output "rediscloud_aa_subscription_id" {
   value = module.rc-aa-subscription.rediscloud_aa_subscription_id
 }
 
-############################ Redis Cloud AA Subscription DATABASE
-#### Provision a database in the AA subscription
-#### provide the size (GB) and throughput (read and write ops/sec) for the db in each region
-# module "rc-aa-db" {
-#     source                          = "./modules/rc-aa-db"
-#     rc_cloud_account_id             = module.rc-aa-subscription.rediscloud_aa_subscription_id
-#     ######### DB Vars (this will deploy the db)
-#     rc_db_data_persistence          = var.rc_db_data_persistence
-#     rc_db_memory_limit_in_gb        = var.rc_db_memory_limit_in_gb
-#     rc_db_name                      = var.rc_db_name
-
-#     depends_on = [
-#       module.rc-aa-subscription
-#     ]
-# }
-
-
+########################### Redis Cloud AA Subscription DATABASE
+### Provision a database in the AA subscription
+### provide the size (GB) and throughput (read and write ops/sec) for the db in each region
+module "rc-aa-db" {
+    source                              = "./modules/rc-aa-db"
+    rediscloud_aa_subscription_id       = module.rc-aa-subscription.rediscloud_aa_subscription_id
+    rc_region_1                         = var.rc_region_1
+    rc_region_2                         = var.rc_region_2
+    rc_networking_deployment_cidr_1     = var.rc_networking_deployment_cidr_1 #MUST BE /24 (MUST NOT OVERLAP WITH AWS Customer VPC CIDR)
+    rc_networking_deployment_cidr_2     = var.rc_networking_deployment_cidr_2 #MUST BE /24 (MUST NOT OVERLAP WITH AWS Customer VPC CIDR)
+    ######### DB Vars (this will deploy the db)
+    rc_db_data_persistence              = var.rc_db_data_persistence
+    rc_db_memory_limit_in_gb            = var.rc_db_memory_limit_in_gb
+    rc_db_name                          = var.rc_db_name
+    local_write_operations_per_second_1 = var.local_write_operations_per_second_1
+    local_read_operations_per_second_1  = var.local_read_operations_per_second_1
+    local_write_operations_per_second_2 = var.local_write_operations_per_second_2
+    local_read_operations_per_second_2  = var.local_read_operations_per_second_2
+    
+    depends_on = [
+      module.rc-aa-subscription
+    ]
+}
 
 ################################## VPC PEERING (region 1)
 ############## Redis Cloud VPC peering to Application VPC in AWS account
@@ -166,8 +172,6 @@ module "rc-aa-vpc-peering-1" {
     providers = {
       aws = aws.a
     }
-    #vpc_name                                = module.aws-vpc-1.vpc-name
-    #owner                                   = var.owner
     rediscloud_aa_subscription_id           = module.rc-aa-subscription.rediscloud_aa_subscription_id
     aws_customer_application_vpc_region     = var.aws_customer_application_vpc_region_1
     aws_customer_application_aws_account_id = var.aws_customer_application_aws_account_id
@@ -190,8 +194,6 @@ module "rc-aa-vpc-peering-2" {
     providers = {
       aws = aws.b
     }
-    #vpc_name                                = module.aws-vpc-2.vpc-name
-    #owner                                   = var.owner
     rediscloud_aa_subscription_id           = module.rc-aa-subscription.rediscloud_aa_subscription_id
     aws_customer_application_vpc_region     = var.aws_customer_application_vpc_region_2
     aws_customer_application_aws_account_id = var.aws_customer_application_aws_account_id

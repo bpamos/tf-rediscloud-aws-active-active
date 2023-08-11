@@ -14,6 +14,7 @@ resource "rediscloud_active_active_subscription_peering" "peering-resource" {
 resource "aws_vpc_peering_connection_accepter" "aws-peering-resource" {
   vpc_peering_connection_id = rediscloud_active_active_subscription_peering.peering-resource.aws_peering_id
   auto_accept               = true
+
 }
 
 
@@ -24,10 +25,6 @@ data "aws_vpc_peering_connection" "pc" {
   cidr_block      = var.rc_networking_deployment_cidr #Redis Cloud Subscription VPC CIDR block
   status          = "active"
 
-  # tags = {
-  #   Name  = format("vpc-peer-%s-and-RC", var.vpc_name),
-  #   Owner = var.owner
-  # }
   depends_on      = [aws_vpc_peering_connection_accepter.aws-peering-resource]
 }
 

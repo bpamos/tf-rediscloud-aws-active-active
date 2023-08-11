@@ -1,13 +1,4 @@
 
-
-# variable "owner" {
-#     description = "owner tag name"
-# }
-
-# variable "vpc_name" {
-#     description = "vpc_name"
-# }
-
 # ##### Subscription Peering
 
 variable "rediscloud_aa_subscription_id" {
