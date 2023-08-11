@@ -1,0 +1,112 @@
+############################################################ AWS Variables
+
+#### User Input Required
+#### Access key and Secret key for aws account [AWS_ACCESS_KEY, AWS_SECRET_KEY]
+#### (fake example: aws_creds = ["myAccesssKeyxjdklfdakf","MySecretKeyxkldkfhadjkfh"]) 
+aws_creds = 
+
+#### Owner tag name of resources
+#### example: owner = "redisuser@redis.com"
+owner = 
+
+#### AWS Regions
+#### example: region = "us-east-1"
+aws_customer_application_vpc_region = "us-east-1"
+
+#### (Resource prefix for all generated aws resources)
+#### example: prefix_name = "redisuser1-tf"
+prefix_name = 
+
+############################################################ AWS VPC Variables
+
+#### VPC CIDR for VPC
+#### example: vpc_cidr = "10.0.0.0/16"
+aws_customer_application_vpc_cidr = "10.0.0.0/16"
+
+#### Subnet CIDR Block
+#### example: subnet_cidr_blocks = ["10.0.0.0/24","10.0.16.0/24","10.0.32.0/24"]
+subnet_cidr_blocks = ["10.0.1.0/24","10.0.2.0/24","10.0.3.0/24"]
+
+#### Subnet AZ 
+#### example: subnet_azs = ["us-east-1a","us-east-1b","us-east-1c"]
+subnet_azs = ["us-east-1a","us-east-1b","us-east-1c"]
+
+############################################################ Subscription Peering Redis Cloud Variables
+
+# Customer AWS Account ID
+#### fake example: aws_customer_application_aws_account_id = "1111111111"
+aws_customer_application_aws_account_id = 
+
+
+############################################################ Redis Cloud Subscription Variables
+
+# Access key and Secret key for Redis Cloud account [REDISCLOUD_ACCESS_KEY, REDISCLOUD_SECRET_KEY]
+#### (fake example: rediscloud_creds = ["myAccesssKeyxjdklfdakf","MySecretKeyxkldkfhadjkfh"]) 
+rediscloud_creds = 
+
+# credit card type
+#### example: cc_type = "Visa"
+cc_type = 
+
+# Last 4 digits for payment method
+#### fake example: cc_last_4 = "1234"
+cc_last_4 = 
+
+# Redis Cloud Subscription name (ie. cluster name)
+#### example: rediscloud_subscription_name = "redisuser-tf-sub"
+rediscloud_subscription_name = 
+
+# Redis Cloud Subscription Region (AWS)
+#### example: rc_region = "us-east-1"
+rc_region = "us-east-1"
+
+# Redis Cloud Subscription Region AZs (must match aws region)
+#### example: rc_preferred_availability_zones = ["us-east-1a","us-east-1b","us-east-1c"]
+rc_preferred_availability_zones = ["us-east-1a","us-east-1b","us-east-1c"]
+
+# Redis Cloud Subscription CIDR (must not overlap AWS Applicaiton VPC CIDR)
+#### MUST BE A /24 CIDR
+#### example: rc_networking_deployment_cidr = "10.1.0.0/24"
+rc_networking_deployment_cidr = "10.1.0.0/24"
+
+
+############################################################ Redis Cloud DB Creation Variables
+
+## Relevant only to ram-and-flash clusters. Estimated average size (measured in bytes) of the items stored in the database.
+rc_db_average_item_size_in_bytes = 0
+
+## Databases replication (true or false)
+rc_db_replication                =  true
+
+# Should use the external endpoint for open-source (OSS) Cluster API. 
+# Can only be enabled if OSS Cluster API support is enabled
+rc_db_external_endpoint_for_oss_cluster_api = false
+
+# Support Redis open-source (OSS) Cluster API.
+rc_db_support_oss_cluster_api = false
+
+# Throughput measurement method, (either ‘number-of-shards’ or ‘operations-per-second’)
+rc_db_throughput_measurement_by = "operations-per-second"
+
+# Throughput value (as applies to selected measurement method)
+# must be increments of 1000
+rc_db_throughput_measurement_value = 1000
+
+# Rate of database data persistence (in persistent storage)
+rc_db_data_persistence = "none"
+
+# Maximum memory usage for this specific database
+rc_db_memory_limit_in_gb = 5
+
+# db name
+rc_db_name = "example-database"
+
+# Db modules
+rc_db_modules = [
+        {
+          "name": "RedisJSON"
+        },
+        {
+          "name": "RedisBloom"
+        }
+    ]

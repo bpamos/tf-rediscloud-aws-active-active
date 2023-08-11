@@ -1,3 +1,6 @@
+# python venv
+**/venv/*
+
 # Local .terraform directories
 **/.terraform/*
 
