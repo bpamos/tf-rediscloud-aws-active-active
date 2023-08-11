@@ -124,10 +124,6 @@ module "rc-aa-subscription" {
     rc_cp_read_operations_per_second_1    = var.rc_cp_read_operations_per_second_1
     rc_cp_write_operations_per_second_2   = var.rc_cp_write_operations_per_second_2
     rc_cp_read_operations_per_second_2    = var.rc_cp_read_operations_per_second_2
-    # ######### DB Vars (this will deploy the db)
-    # rc_db_data_persistence                = var.rc_db_data_persistence
-    # rc_db_memory_limit_in_gb              = var.rc_db_memory_limit_in_gb
-    # rc_db_name                            = var.rc_db_name
 
     depends_on = [
       data.rediscloud_cloud_account.account
