@@ -7,6 +7,8 @@ Deploy and configure a "test node", an EC2 with Redis and Memtier Benchmark inst
 
 VPC peer your Redis Cloud Active-Active subscription to a new VPC in each region.
 
+Example of Deployment:
+![Alt text](images/RedisCloudAA-Example.png?raw=true "Title")
 
 # Overview
 
