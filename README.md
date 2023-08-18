@@ -1,7 +1,10 @@
 # tf-rediscloud-aws-active-active
 Deploy a Redis Cloud Active-Active AWS Subscription and create a new Redis DB using the Redis Cloud Terraform Provider ([link](https://registry.terraform.io/providers/RedisLabs/rediscloud/latest/docs)).
+
 Deploy a new VPC in each region your Active-Active DB will reside.
+
 Deploy and configure a "test node", an EC2 with Redis and Memtier Benchmark installed in each VPC.
+
 VPC peer your Redis Cloud Active-Active subscription to a new VPC in each region.
 
 
