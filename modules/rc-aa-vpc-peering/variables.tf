@@ -31,6 +31,6 @@ variable "rc_networking_deployment_cidr" {
     description = "the CIDR of your RedisCloud deployment"
 }
 
-variable "destination_region" {
-    description = "the destination region"
+variable "rc_region" {
+    description = "the source region"
 }

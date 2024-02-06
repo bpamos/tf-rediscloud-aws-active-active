@@ -1,14 +1,12 @@
 
-
-
 ############################# Peering 1
 resource "rediscloud_active_active_subscription_peering" "peering-resource" {
    subscription_id = var.rediscloud_aa_subscription_id
-   source_region = var.aws_customer_application_vpc_region
-   destination_region = var.destination_region
-   aws_account_id = var.aws_customer_application_aws_account_id
-   vpc_id = var.aws_customer_application_vpc_id
-   vpc_cidr = var.aws_customer_application_vpc_cidr
+   source_region = var.rc_region #requester (Redis Cloud VPC)
+   destination_region = var.aws_customer_application_vpc_region  #accepter (applicaiton VPC)
+   aws_account_id = var.aws_customer_application_aws_account_id #aws account Id
+   vpc_id = var.aws_customer_application_vpc_id #accepter VCP id (destination)
+   vpc_cidr = var.aws_customer_application_vpc_cidr #accepter VCP cidr (destination)
 }
 
 resource "aws_vpc_peering_connection_accepter" "aws-peering-resource" {
@@ -34,7 +32,7 @@ output "aws_vpc_peering_connection" {
 }
 
 # Create a route
-resource "aws_route" "r" {
+resource "aws_route" "r1" {
   route_table_id            = var.aws_vpc_route_table_id
   destination_cidr_block    = var.rc_networking_deployment_cidr
   vpc_peering_connection_id = data.aws_vpc_peering_connection.pc.id

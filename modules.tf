@@ -160,8 +160,8 @@ module "rc-aa-db" {
     ]
 }
 
-################################## VPC PEERING (region 1)
-############## Redis Cloud VPC peering to Application VPC in AWS account
+################################## VPC PEERING (region A)
+############## Redis Cloud VPC peering to Application VPC in same region
 ########## This requires adding a route to the applicaiton VPC in the customers AWS account
 module "rc-aa-vpc-peering-1" {
     source                                    = "./modules/rc-aa-vpc-peering"
@@ -174,7 +174,7 @@ module "rc-aa-vpc-peering-1" {
     aws_customer_application_vpc_id         = module.aws-vpc-1.vpc-id
     aws_customer_application_vpc_cidr       = var.aws_customer_application_vpc_cidr_1
     rc_networking_deployment_cidr           = var.rc_networking_deployment_cidr_1
-    destination_region                      = var.rc_region_1
+    rc_region                               = var.rc_region_1
     aws_vpc_route_table_id                  = module.aws-vpc-1.route-table-id
 
     depends_on = [
@@ -182,9 +182,9 @@ module "rc-aa-vpc-peering-1" {
     ]
 }
 
-################################## VPC PEERING (region 2)
-############## Redis Cloud VPC peering to Application VPC in AWS account
-########## This requires adding a route to the applicaiton VPC in the customers AWS account
+# ################################## VPC PEERING (region B)
+# ############## Redis Cloud VPC peering to Application VPC in same region
+# ########## This requires adding a route to the applicaiton VPC in the customers AWS account
 module "rc-aa-vpc-peering-2" {
     source                                  = "./modules/rc-aa-vpc-peering"
     providers = {
@@ -196,7 +196,7 @@ module "rc-aa-vpc-peering-2" {
     aws_customer_application_vpc_id         = module.aws-vpc-2.vpc-id
     aws_customer_application_vpc_cidr       = var.aws_customer_application_vpc_cidr_2
     rc_networking_deployment_cidr           = var.rc_networking_deployment_cidr_2
-    destination_region                      = var.rc_region_2
+    rc_region                               = var.rc_region_2
     aws_vpc_route_table_id                  = module.aws-vpc-2.route-table-id
 
     depends_on = [
@@ -204,11 +204,54 @@ module "rc-aa-vpc-peering-2" {
     ]
 }
 
+################################# VPC PEERING (Cross Region)
+############## Redis Cloud VPC peering to Application VPC in other region. Redis Cloud Region B to Application Region A
+module "rc-aa-vpc-peering-application-vpc-a-to-redis-vpc-b" {
+    source                                    = "./modules/rc-aa-vpc-peering"
+    providers = {
+      aws = aws.a
+    }
+    rediscloud_aa_subscription_id           = module.rc-aa-subscription.rediscloud_aa_subscription_id
+    aws_customer_application_vpc_region     = var.aws_customer_application_vpc_region_1
+    aws_customer_application_aws_account_id = var.aws_customer_application_aws_account_id
+    aws_customer_application_vpc_id         = module.aws-vpc-1.vpc-id
+    aws_customer_application_vpc_cidr       = var.aws_customer_application_vpc_cidr_1
+    rc_networking_deployment_cidr           = var.rc_networking_deployment_cidr_2
+    rc_region                               = var.rc_region_2
+    aws_vpc_route_table_id                  = module.aws-vpc-1.route-table-id
+
+    depends_on = [
+      module.aws-vpc-1, module.aws-vpc-2, 
+      module.rc-aa-subscription,
+      module.rc-aa-vpc-peering-1
+    ]
+}
+
+################################# VPC PEERING (Cross Region)
+############## Redis Cloud VPC peering to Application VPC in other region. Redis Cloud Region A to Application Region B
+module "rc-aa-vpc-peering-application-vpc-b-to-redis-vpc-a" {
+    source                                    = "./modules/rc-aa-vpc-peering"
+    providers = {
+      aws = aws.b
+    }
+    rediscloud_aa_subscription_id           = module.rc-aa-subscription.rediscloud_aa_subscription_id
+    aws_customer_application_vpc_region     = var.aws_customer_application_vpc_region_2
+    aws_customer_application_aws_account_id = var.aws_customer_application_aws_account_id
+    aws_customer_application_vpc_id         = module.aws-vpc-2.vpc-id
+    aws_customer_application_vpc_cidr       = var.aws_customer_application_vpc_cidr_2
+    rc_networking_deployment_cidr           = var.rc_networking_deployment_cidr_1
+    rc_region                               = var.rc_region_1
+    aws_vpc_route_table_id                  = module.aws-vpc-2.route-table-id
+
+    depends_on = [
+      module.aws-vpc-1, module.aws-vpc-2, 
+      module.rc-aa-subscription,
+      module.rc-aa-vpc-peering-2
+    ]
+}
 
 
-
-
-#######################################
+# #######################################
 ########### Node Module 1
 #### Create Test nodes
 #### Ansible playbooks configure Test node with Redis and Memtier
