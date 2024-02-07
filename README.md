@@ -118,6 +118,8 @@ Now you are ready to go!
     ```bash
     # create virtual environment
     python3 -m venv ./venv
+    source ./venv/bin/activate
+    python3 -m pip install ansible
     # ensure ansible is in path (you should see an output showing ansible is there)
     # if you see nothing refer back to the prerequisites section for installing ansible.
     ansible --version
@@ -133,4 +135,31 @@ Remove the resources that were created.
 
 ```bash
   terraform destroy
+```
+
+
+# Running Jedis Failover Application:
+
+The Test Node has a simple Jedis application installed on it. To run the application you can follow the instructions below.
+You will need to connect to the EC2 node, CD to the Jedis folder, and run a command after putting the redis db connection string details in.
+After you begin running the application you can test failover by removing the VPC peering connection from the primary side of the AA db.
+(Ie. if you are writing to US-EAST-1 DB, then remove the US-EAST-1 DB VPC Peering connection) this will simulate failover because you can no longer connect to that DB, this will force the Jedis App to Auto Failover to the secondary site (ie. US-WEST-2)
+
+Detailed Instructions below:
+#######
+```bash
+# access EC2 node:
+
+sudo su -
+# go to jedis folder
+cd /tmp/jedis-failover-demo
+
+# run the command:
+# use the "internal" endpoint
+#below is an example of providing the args for a failover scenario:
+mvn compile exec:java -Dexec.cleanupDaemonThreads=false -Dexec.args="--failover true --host FIXME --port FIXME --password FIXME --host2 FIXME --port2 FIXME --password2 FIXME"
+
+# Delete the VPC Peering from the primary site.
+
+
 ```
