@@ -148,6 +148,7 @@ module "rc-aa-db" {
     rc_networking_deployment_cidr_2     = var.rc_networking_deployment_cidr_2 #MUST BE /24 (MUST NOT OVERLAP WITH AWS Customer VPC CIDR)
     ######### DB Vars (this will deploy the db)
     rc_db_data_persistence              = var.rc_db_data_persistence
+    rc_db_password                      = var.rc_db_password
     rc_db_memory_limit_in_gb            = var.rc_db_memory_limit_in_gb
     rc_db_name                          = var.rc_db_name
     local_write_operations_per_second_1 = var.local_write_operations_per_second_1
@@ -158,6 +159,16 @@ module "rc-aa-db" {
     depends_on = [
       module.rc-aa-subscription
     ]
+}
+
+output "private_endpoint" {
+  description = "A map of which private endpoints can to access the database per region, uses region name as key."
+  value = module.rc-aa-db.private_endpoint
+}
+
+output "private_endpoints_list" {
+  description = "list them private endpionts"
+  value = module.rc-aa-db.private_endpoints_list
 }
 
 ################################## VPC PEERING (region A)
@@ -275,6 +286,10 @@ module "nodes-1" {
     vpc_name           = module.aws-vpc-1.vpc-name
     vpc_subnets_ids    = module.aws-vpc-1.subnet-ids
     vpc_id             = module.aws-vpc-1.vpc-id
+
+    depends_on = [
+      module.aws-vpc-1
+    ]
 }
 
 #### Node Outputs to use in future modules
@@ -290,9 +305,79 @@ output "test-node-eip-public-dns-1" {
   value = module.nodes-1.test-node-eip-public-dns
 }
 
+
+########### Node Module 1
+#### Create Test nodes
+#### Ansible playbooks configure Test node with Redis and Memtier
+module "nodes-config-redis-1" {
+    source             = "./modules/node-config-redis"
+    providers = {
+      aws = aws.a
+    }
+    ssh_key_name       = var.ssh_key_name_1
+    ssh_key_path       = var.ssh_key_path_1
+    test-node-count    = var.test-node-count
+    ### vars pulled from previous modules
+    ## from vpc module outputs 
+    vpc_name           = module.aws-vpc-1.vpc-name
+    vpc_id             = module.aws-vpc-1.vpc-id
+    aws_eips           = module.nodes-1.test-node-eips
+
+    depends_on = [
+      module.nodes-1
+    ]
+}
+
+
+#### Create Test nodes
+#### Ansible playbooks configure Test node with Redis and Memtier
+module "nodes-config-java-1" {
+    source             = "./modules/node-config-java"
+    providers = {
+      aws = aws.a
+    }
+    ssh_key_name       = var.ssh_key_name_1
+    ssh_key_path       = var.ssh_key_path_1
+    test-node-count    = var.test-node-count
+    ### vars pulled from previous modules
+    ## from vpc module outputs 
+    vpc_name           = module.aws-vpc-1.vpc-name
+    vpc_id             = module.aws-vpc-1.vpc-id
+    aws_eips           = module.nodes-1.test-node-eips
+
+    depends_on = [
+      module.nodes-1,
+      module.nodes-config-redis-1
+    ]
+}
+
+output "mvn_command" {
+  description = "Formatted Maven command with private endpoint values."
+  value = <<-EOT
+    mvn compile exec:java -Dexec.cleanupDaemonThreads=false -Dexec.args="--failover true --host ${module.rc-aa-db.private_endpoints_list[0].endpoint.hostname} --port ${module.rc-aa-db.private_endpoints_list[0].endpoint.port} --password ${var.rc_db_password} --host2 ${module.rc-aa-db.private_endpoints_list[1].endpoint.hostname} --port2 ${module.rc-aa-db.private_endpoints_list[1].endpoint.port} --password2 ${var.rc_db_password}"
+  EOT
+  depends_on = [module.nodes-config-java-1, module.rc-aa-db]
+}
+
+#### Create Test nodes
+#### Ansible playbooks configure Test node with Redis and Memtier
+module "jedis-run-app-1" {
+    source             = "./modules/jedis-run"
+    providers = {
+      aws = aws.a
+    }
+    vpc_name               = module.aws-vpc-1.vpc-name
+    rc_db_password         = var.rc_db_password
+    private_endpoints_list = module.rc-aa-db.private_endpoints_list
+
+    depends_on = [
+      module.nodes-config-java-1
+    ]
+}
+
 #######################################
 ########### Node Module 2
-#### Create Test nodes
+#### Create Test node
 #### Ansible playbooks configure Test node with Redis and Memtier
 module "nodes-2" {
     source             = "./modules/nodes"
@@ -314,6 +399,10 @@ module "nodes-2" {
     vpc_name           = module.aws-vpc-2.vpc-name
     vpc_subnets_ids    = module.aws-vpc-2.subnet-ids
     vpc_id             = module.aws-vpc-2.vpc-id
+
+    depends_on = [
+      module.aws-vpc-2
+    ]
 }
 
 #### Node Outputs to use in future modules
@@ -328,3 +417,49 @@ output "test-node-internal-ips-2" {
 output "test-node-eip-public-dns-2" {
   value = module.nodes-2.test-node-eip-public-dns
 }
+
+########### Node Module 1
+#### Create Test nodes
+#### Ansible playbooks configure Test node with Redis and Memtier
+module "nodes-config-redis-2" {
+    source             = "./modules/node-config-redis"
+    providers = {
+      aws = aws.b
+    }
+    ssh_key_name       = var.ssh_key_name_2
+    ssh_key_path       = var.ssh_key_path_2
+    test-node-count    = var.test-node-count
+    ### vars pulled from previous modules
+    ## from vpc module outputs 
+    vpc_name           = module.aws-vpc-2.vpc-name
+    vpc_id             = module.aws-vpc-2.vpc-id
+    aws_eips           = module.nodes-2.test-node-eips
+
+    depends_on = [
+      module.nodes-2
+    ]
+}
+
+
+#### Create Test nodes
+#### Ansible playbooks configure Test node with Redis and Memtier
+module "nodes-config-java-2" {
+    source             = "./modules/node-config-java"
+    providers = {
+      aws = aws.b
+    }
+    ssh_key_name       = var.ssh_key_name_2
+    ssh_key_path       = var.ssh_key_path_2
+    test-node-count    = var.test-node-count
+    ### vars pulled from previous modules
+    ## from vpc module outputs 
+    vpc_name           = module.aws-vpc-2.vpc-name
+    vpc_id             = module.aws-vpc-2.vpc-id
+    aws_eips           = module.nodes-2.test-node-eips
+
+    depends_on = [
+      module.nodes-2,
+      module.nodes-config-redis-2
+    ]
+}
+

@@ -119,6 +119,9 @@ rc_db_name = "example-database"
 # Rate of database data persistence (in persistent storage)
 rc_db_data_persistence = "aof-every-1-second" 
 
+# redis cloud db password (global meaning all dbs in the AA sub)
+rc_db_password = "password"
+
 # Maximum memory usage for this specific database
 rc_db_memory_limit_in_gb = 25
 

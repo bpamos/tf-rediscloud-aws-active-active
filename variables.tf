@@ -196,6 +196,11 @@ variable "rc_db_data_persistence" {
     default = "none"
 }
 
+variable "rc_db_password" {
+    description = "Rate of database data persistence (in persistent storage)"
+    default = "none"
+}
+
 variable "rc_db_memory_limit_in_gb" {
     description = "Maximum memory usage that will be used for your database."
     default = 25
