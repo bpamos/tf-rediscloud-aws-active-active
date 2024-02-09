@@ -6,6 +6,7 @@ resource "rediscloud_active_active_subscription_database" "database-resource" {
     name = var.rc_db_name
     memory_limit_in_gb = var.rc_db_memory_limit_in_gb
     global_data_persistence = var.rc_db_data_persistence
+    global_password = var.rc_db_password
     global_alert {
     name = "dataset-size"
     value = 70

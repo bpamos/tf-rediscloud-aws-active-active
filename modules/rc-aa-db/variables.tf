@@ -32,6 +32,11 @@ variable "rc_db_data_persistence" {
     default = "none"
 }
 
+variable "rc_db_password" {
+    description = "Password to access the database of regions that don't override global settings. If left empty, the password will be generated automatically"
+    default = "none"
+}
+
 variable "rc_db_memory_limit_in_gb" {
     description = "Maximum memory usage that will be used for your database."
     default = 25
