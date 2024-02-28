@@ -3,6 +3,7 @@
 
 # Local .terraform directories
 **/.terraform/*
+**/modules/node-config-java/ansible/jedis-project/jedis-failover-demo/target/*
 
 # .tfstate files
 *.tfstate
