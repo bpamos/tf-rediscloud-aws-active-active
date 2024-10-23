@@ -119,9 +119,6 @@ public class Main
 
 
 
-
-
-
 class JedisConnectionHelper {
     final PooledConnectionProvider connectionProvider;
     final JedisPooled jedisPooled;
